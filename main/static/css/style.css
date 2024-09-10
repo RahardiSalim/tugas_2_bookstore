@@ -1,0 +1,133 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f3ea;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #e74c3c;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+.tagline {
+    font-size: 1.2em;
+    color: #bcb8b8;
+    margin-top: 0.5em;
+    text-align: center;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+main {
+    padding: 20px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.book-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.book-card {
+    background-color: white;
+    border: 2px solid #e74c3c;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+    width: 300px;
+    max-width: 100%;
+    height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 0 auto; 
+}
+
+.book-card:hover {
+    transform: translateY(-10px);
+}
+
+.book-card h3 {
+    margin-top: 0;
+    color: #e74c3c;
+}
+
+.book-card p {
+    margin: 10px 0;
+}
+
+.book-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-buy {
+    background-color: #27ae60;
+}
+
+.btn-buy:hover {
+    background-color: #2ecc71;
+}
+
+.btn-cart {
+    background-color: #3498db;
+}
+
+.btn-cart:hover {
+    background-color: #2980b9;
+}

@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manga & Novel Store</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Kizuna Reads</h1>
+        <p class="tagline">Where your imagination has no limit</p>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/books">Books</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <h2>Explore Our Collection</h2>
+        <div class="book-container">
+            {% for book in books %}
+            <div class="book-card">
+                {% if book.image %}
+                <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+                {% endif %}
+                <h3>{{ book.title }}</h3>
+                <p><strong>Author:</strong> {{ book.author }}</p>
+                <p><strong>Price:</strong> ${{ book.price }}</p>
+                <p><strong>Publication Year:</strong> {{ book.publication_year }}</p>
+                <p><strong>Condition:</strong> {{ book.condition }}</p>
+                <p><strong>Description:</strong> {{ book.description }}</p>
+                <button class="btn btn-buy">Buy Now</button>
+                <button class="btn btn-cart">Add to Cart</button>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Kizuna Reads. All Rights Reserved.</p>
+    </footer>
+    
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
