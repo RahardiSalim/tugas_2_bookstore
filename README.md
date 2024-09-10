@@ -1,7 +1,7 @@
 # README
 
 Aplikasi Django yang telah di-deploy dapat diakses melalui tautan berikut:
-[Link ke Aplikasi PWS](URL_TAUTAN_AKSES_APLIKASI_PWS)
+[Link ke Aplikasi PWS](http://rahardi-salim-tugasbookstore.pbp.cs.ui.ac.id)
 
 ## 1. Cara Implementasi Checklist
 
