@@ -84,7 +84,7 @@ Aplikasi Django yang telah di-deploy dapat diakses melalui tautan berikut:
 
      urlpatterns = [
         path('', show_main, name='show_main'),
-    ]
+     ]
      ```
 
 7. **Melakukan Deployment ke PWS**
@@ -97,9 +97,9 @@ Aplikasi Django yang telah di-deploy dapat diakses melalui tautan berikut:
    - Lakukan `git add`, `commit`, dan `push` perubahan ke GitHub.
    - Jalankan **Project Command** dari PWS, lalu jalankan:
      ```bash
-    git remote add pws https://pbp.cs.ui.ac.id/rahardi.salim/tugasbookstore
-    git branch -M master
-    git push pws master
+     git remote add pws https://pbp.cs.ui.ac.id/rahardi.salim/tugasbookstore
+     git branch -M master
+     git push pws master
      ```
    - **Cek status deployment** di PWS, jika "Running," akses URL PWS.
    - Untuk update selanjutnya, cukup jalankan:
