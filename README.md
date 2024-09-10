@@ -42,9 +42,8 @@ Aplikasi Django yang telah di-deploy dapat diakses melalui tautan berikut:
 4. **Membuat Model `Product`**
    - Di dalam `models.py` aplikasi `main`, buat model `Product` dengan atribut yang disebutkan:
      ```python
-    from django.db import models
-
-    class Product(models.Model):
+     from django.db import models
+     class Product(models.Model):
         title = models.CharField(max_length=255)
         price = models.FloatField()
         description = models.TextField()
@@ -62,10 +61,10 @@ Aplikasi Django yang telah di-deploy dapat diakses melalui tautan berikut:
 5. **Membuat Fungsi di `views.py`**
    - Di `views.py` aplikasi `main`, buat fungsi yang mengembalikan template HTML:
      ```python
-    from django.shortcuts import render
-    from .models import Product as Book
+     from django.shortcuts import render
+     from .models import Product as Book
 
-    def show_main(request):
+     def show_main(request):
         books = Book.objects.all()
 
         context = {
@@ -78,12 +77,12 @@ Aplikasi Django yang telah di-deploy dapat diakses melalui tautan berikut:
 6. **Membuat Routing di `urls.py` Aplikasi `main`**
    - Membuat file `urls.py` di dalam aplikasi `main` dan tambahkan routing:
      ```python
-    from django.urls import path
-    from main.views import show_main
+     from django.urls import path
+     from main.views import show_main
 
-    app_name = 'bookstore'
+     app_name = 'bookstore'
 
-    urlpatterns = [
+     urlpatterns = [
         path('', show_main, name='show_main'),
     ]
      ```
