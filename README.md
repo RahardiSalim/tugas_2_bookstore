@@ -208,6 +208,6 @@ Dengan menambahkan csrf_token, server akan memverifikasi bahwa permintaan terseb
 ## POSTMAN LINK
 
 [![XML](./Tugas3MediaFolder/XML.png)]()
-[![XML with ID](./Tugas3MediaFolder/XML with ID.png)]()
+[![XML with ID](./Tugas3MediaFolder/XMLwithID.png)]()
 [![JSON](./Tugas3MediaFolder/JSON.png)]()
-[![JSON with ID](./Tugas3MediaFolder/JSON with ID.png)]()
+[![JSON with ID](./Tugas3MediaFolder/JSONwithID.png)]()
