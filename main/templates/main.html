@@ -1,4 +1,6 @@
+{% extends 'base.html' %}
 {% load static %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,8 +23,14 @@
         </nav>
     </header>
     
-    <main>
+    <main>  
         <h2>Explore Our Collection</h2>
+        <!-- Add Book Button -->
+        <div class="flex justify-end mb-4">
+            <a href="{% url 'bookstore:create_product' %}">Add New Book</a>
+                Add New Book
+            </a>
+        </div>
         <div class="book-container">
             {% for book in books %}
             <div class="book-card">
@@ -30,10 +38,14 @@
                 <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
                 {% endif %}
                 <h3>{{ book.title }}</h3>
-                <p><strong>Author:</strong> {{ book.author }}</p>
+                <p><strong>Author:</strong> {{ book.author.name }}</p>
                 <p><strong>Price:</strong> ${{ book.price }}</p>
                 <p><strong>Publication Year:</strong> {{ book.publication_year }}</p>
-                <p><strong>Condition:</strong> {{ book.condition }}</p>
+                <p><strong>Categories:</strong> 
+                    {% for category in book.category.all %}
+                        {{ category.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
                 <p><strong>Description:</strong> {{ book.description }}</p>
                 <button class="btn btn-buy">Buy Now</button>
                 <button class="btn btn-cart">Add to Cart</button>
@@ -49,3 +61,4 @@
     <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>
+{% endblock content %}
