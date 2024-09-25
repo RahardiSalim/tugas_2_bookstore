@@ -1,17 +1,11 @@
 from django import forms
-from .models import Author, Publisher, Category, Product, Customer, Order, OrderItem, Review
+from .models import Brand, Category, Product, Customer, Order, OrderItem, Review
 
-# Author Form
-class AuthorForm(forms.ModelForm):
+# Brand Form
+class BrandForm(forms.ModelForm):
     class Meta:
-        model = Author
-        fields = ['name', 'bio']
-
-# Publisher Form
-class PublisherForm(forms.ModelForm):
-    class Meta:
-        model = Publisher
-        fields = ['name', 'address', 'website']
+        model = Brand
+        fields = ['name', 'description', 'website']
 
 # Category Form
 class CategoryForm(forms.ModelForm):
@@ -19,11 +13,11 @@ class CategoryForm(forms.ModelForm):
         model = Category
         fields = ['name']
 
-# Product (Book) Form
+# Product Form (formerly Book Form)
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['title', 'price', 'description', 'author', 'publisher', 'category', 'isbn', 'stock_quantity', 'publication_year', 'image']
+        fields = ['name', 'price', 'description', 'brand', 'category', 'sku', 'stock_quantity', 'image']
         widgets = {
             'category': forms.CheckboxSelectMultiple(),
         }
@@ -44,10 +38,10 @@ class OrderForm(forms.ModelForm):
 class OrderItemForm(forms.ModelForm):
     class Meta:
         model = OrderItem
-        fields = ['order', 'book', 'quantity', 'price_at_order']
+        fields = ['order', 'product', 'quantity', 'price_at_order'] 
 
 # Review Form
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        fields = ['book', 'customer', 'rating', 'comment']
+        fields = ['product', 'customer', 'rating', 'comment']

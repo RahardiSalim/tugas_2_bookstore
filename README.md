@@ -211,3 +211,203 @@ Dengan menambahkan csrf_token, server akan memverifikasi bahwa permintaan terseb
 [![XML with ID](./Tugas3MediaFolder/XMLwithID.png)]()
 [![JSON](./Tugas3MediaFolder/JSON.png)]()
 [![JSON with ID](./Tugas3MediaFolder/JSONwithID.png)]()
+
+# TUGAS 4
+
+## 1. Perbedaan antara `HttpResponseRedirect()` dan `redirect()`
+
+### `HttpResponseRedirect()`
+`HttpResponseRedirect` adalah kelas Django yang mengembalikan respons HTTP 302, mengarahkan pengguna ke URL yang ditentukan. Ini adalah cara manual untuk melakukan redirect di Django dan memerlukan URL yang dihasilkan atau dikodekan secara eksplisit.
+
+**Karakteristik**:
+- Memerlukan URL tujuan dalam bentuk string secara manual.
+- Digunakan jika ingin mengendalikan lebih banyak aspek dari response.
+
+### `redirect()`
+`redirect()` adalah shortcut yang disediakan oleh Django untuk melakukan redirect dengan lebih sedikit kode. Selain menerima string URL, `redirect()` juga dapat menerima nama view dan argumen untuk memudahkan pembuatan URL dinamis.
+
+**Karakteristik**:
+- Dapat menerima string URL, nama view, atau bahkan objek model, dan akan otomatis melakukan resolusi URL.
+- Lebih fleksibel dan user-friendly, lebih sering digunakan dalam praktik karena memudahkan pengelolaan URL.
+
+## 2. Cara Kerja Penghubungan Model `Product` dengan `User`
+
+Dalam Django, model `Product` dapat dihubungkan dengan model `User` (biasanya dari `django.contrib.auth.models.User`) melalui beberapa tipe relasi, tergantung pada kebutuhan aplikasi. Misalnya:
+
+### **ForeignKey Relationship**
+Jika setiap produk dimiliki oleh satu pengguna, kita dapat menggunakan ForeignKey:
+```python
+from django.contrib.auth.models import User
+from django.db import models
+
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+```
+
+### **ManyToManyField**
+Jika suatu produk bisa dimiliki oleh lebih dari satu pengguna (misalnya wishlist atau shared ownership), kita dapat menggunakan ManyToManyField:
+```python
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    users = models.ManyToManyField(User)
+```
+
+### Cara Kerja:
+- **ForeignKey**: Relasi satu ke banyak, di mana satu produk dimiliki oleh satu pengguna.
+- **ManyToManyField**: Relasi banyak ke banyak, di mana satu produk bisa dimiliki oleh banyak pengguna dan satu pengguna bisa memiliki banyak produk.
+
+
+## 3. Perbedaan antara Authentication dan Authorization
+
+### **Authentication (Otentikasi)**
+Otentikasi adalah proses memverifikasi identitas pengguna, biasanya dengan cara memeriksa kredensial seperti username dan password. Otentikasi menjawab pertanyaan: *Apakah pengguna ini adalah siapa yang mereka klaim?*
+
+### **Authorization (Otorisasi)**
+Otorisasi adalah proses menentukan hak akses pengguna setelah identitas mereka diverifikasi. Ini menjawab pertanyaan: *Apa yang diizinkan pengguna ini untuk lakukan?*
+
+### **Proses Saat Pengguna Login**
+1. **Otentikasi**: Saat pengguna memasukkan kredensial, Django akan memverifikasi melalui sistem otentikasinya, biasanya mencocokkan username dan password.
+2. **Otorisasi**: Setelah pengguna berhasil masuk (authenticated), Django menggunakan sistem izin (permissions) untuk menentukan apa yang diizinkan pengguna tersebut lakukan.
+
+### **Implementasi di Django**
+- Django menyediakan sistem otentikasi bawaan dengan model `User` dan `authenticate()`.
+- Django menggunakan sistem `permissions` dan `groups` untuk menangani otorisasi. Izin dapat ditentukan pada level objek dan model.
+
+## 4. Bagaimana Django Mengingat Pengguna yang Telah Login?
+
+Django menggunakan **session** dan **cookies** untuk mengingat pengguna yang telah login. Setelah pengguna berhasil login, Django menyimpan informasi sesi pada server dan mengirimkan cookie ke browser pengguna yang berisi ID sesi.
+
+### **Cara Kerja**:
+1. Saat pengguna login, Django membuat record sesi di server (misalnya di database).
+2. Django mengirimkan cookie yang berisi session ID ke browser pengguna.
+3. Setiap kali pengguna mengunjungi situs, browser mengirimkan cookie ini kembali ke server sehingga Django dapat mengidentifikasi pengguna berdasarkan ID sesi tersebut.
+
+### **Kegunaan Lain dari Cookies**
+- **Menyimpan preferensi pengguna**: Misalnya, bahasa pilihan atau tema.
+- **Melacak aktivitas pengguna**: Digunakan untuk analitik atau personalisasi iklan.
+- **Otentikasi**: Cookies dapat digunakan untuk mempertahankan sesi login atau token autentikasi.
+
+### **Keamanan Cookies**
+Tidak semua cookies aman untuk digunakan, terutama jika cookies tidak dienkripsi atau tidak menggunakan protokol aman seperti HTTPS. Jenis cookies:
+- **Session Cookies**: Lebih aman karena hanya bertahan selama sesi browsing aktif.
+- **Persistent Cookies**: Bertahan setelah sesi berakhir dan berpotensi menjadi target serangan.
+- Cookies harus ditandai sebagai `HttpOnly` untuk mencegah akses melalui JavaScript dan `Secure` untuk hanya dikirim melalui koneksi HTTPS.
+
+Berikut adalah langkah-langkah detail untuk mengimplementasikan checklist yang diberikan berdasarkan kode dan aplikasi Django yang sudah kamu buat:
+
+## 5. Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step (bukan hanya sekadar mengikuti tutorial).
+
+### **Langkah 1: Mengimplementasikan Fungsi Registrasi, Login, dan Logout**
+1. **Fungsi Registrasi**: 
+   - Tujuan dari fungsi ini adalah untuk memungkinkan pengguna baru membuat akun. Saya menggunakan `UserCreationForm` bawaan dari Django, yang menyediakan form pendaftaran standar.
+   - Ketika form valid, saya memanggil `form.save()` untuk menyimpan pengguna baru dan kemudian mengarahkan pengguna ke halaman login.
+   
+   **Kode**:
+   ```python
+   def register(request):
+       form = UserCreationForm()
+
+       if request.method == "POST":
+           form = UserCreationForm(request.POST)
+           if form.is_valid():
+               form.save()
+               messages.success(request, 'Your account has been successfully created!')
+               return redirect('bookstore:login')
+       context = {'form': form}
+       return render(request, 'register.html', context)
+   ```
+
+2. **Fungsi Login**:
+   - Menggunakan `AuthenticationForm` untuk menangani login pengguna. Ketika form valid dan kredensial benar, saya memanggil `login()` untuk membuat sesi pengguna dan menyimpan `last_login` di cookie menggunakan `response.set_cookie()`.
+   
+   **Kode**:
+   ```python
+   def login_user(request):
+       if request.method == 'POST':
+           form = AuthenticationForm(data=request.POST)
+           if form.is_valid():
+               user = form.get_user()
+               login(request, user)
+               response = HttpResponseRedirect(reverse("bookstore:show_main"))
+               response.set_cookie('last_login', str(datetime.datetime.now()))
+               return response
+       else:
+           form = AuthenticationForm(request)
+       context = {'form': form}
+       return render(request, 'login.html', context)
+   ```
+
+3. **Fungsi Logout**:
+   - Setelah pengguna logout, cookie `last_login` dihapus, dan sesi pengguna juga dihapus menggunakan fungsi `logout()`.
+   
+   **Kode**:
+   ```python
+   def logout_user(request):
+       logout(request)
+       response = HttpResponseRedirect(reverse('bookstore:login'))
+       response.delete_cookie('last_login')
+       return response
+   ```
+
+### **Langkah 2: Membuat Dua Akun Pengguna dan Tiga Dummy Data**
+1. **Membuat Akun Pengguna**:
+   - Setelah menambahkan fitur registrasi, saya mendaftarkan dua akun pengguna baru melalui halaman registrasi di aplikasi Django.
+   
+2. **Menambahkan Dummy Data Produk**:
+   - Saya membuat tiga produk dummy untuk setiap pengguna menggunakan form `ProductForm`. Form tersebut mengisi informasi produk seperti nama, harga, brand, dan kategori yang dikaitkan dengan pengguna yang sedang login.
+
+   [![2User](./Tugas3MediaFolder/2User.png)]()
+   [![6Dummy](./Tugas3MediaFolder/6Dummy.png)]()
+
+### **Langkah 3: Menghubungkan Model `Product` dengan `User`**
+- Model `Product` telah memiliki ForeignKey yang menghubungkan produk ke `User`. ForeignKey ini berfungsi agar setiap produk dapat dihubungkan dengan pengguna tertentu yang membuat atau mengunggah produk tersebut.
+  
+  **Kode pada model `Product`**:
+  ```python
+  class Product(models.Model):
+      user = models.ForeignKey(User, on_delete=models.CASCADE)
+      ...
+  ```
+
+- Pada saat produk dibuat menggunakan form `ProductForm`, saya menetapkan bahwa `product.user` diisi dengan `request.user` (pengguna yang sedang login).
+  
+  **Kode**:
+  ```python
+  def create_product(request):
+      if request.method == 'POST':
+          form = ProductForm(request.POST, request.FILES)
+          if form.is_valid():
+              product = form.save(commit=False)
+              product.user = request.user  # Set the product owner to the logged-in user
+              product.save()
+              form.save_m2m()
+              return redirect('bookstore:product_list')
+      else:
+          form = ProductForm()
+      return render(request, 'product_form.html', {'form': form})
+  ```
+
+### **Langkah 4: Menampilkan Detail Informasi Pengguna yang Sedang Login**
+- Pada halaman utama (`show_main`), saya menampilkan detail pengguna yang sedang login, seperti username. Saya juga memanfaatkan cookies untuk menampilkan kapan terakhir kali pengguna login (`last_login`).
+  
+  **Kode**:
+  ```python
+  @login_required(login_url='/login')
+  def show_main(request):
+      products = Product.objects.all()
+      context = {
+          'products': products,
+          'last_login': request.COOKIES.get('last_login', 'Never'),
+          'name': request.user.username,
+      }
+      return render(request, "main.html", context)
+  ```
+
+### **Langkah 5: Penerapan dan Penggunaan Cookies**
+- Saat pengguna login, saya menyimpan `last_login` dalam bentuk cookie di browser mereka. Cookie ini digunakan untuk menampilkan waktu terakhir kali pengguna login di halaman utama aplikasi.
+- Penggunaan cookie pada aplikasi ini terbatas pada penyimpanan informasi sederhana seperti waktu login terakhir. Cookies yang digunakan adalah `session cookies` yang akan dihapus saat pengguna logout atau menutup browser.
+
+  ```python
+  response.set_cookie('last_login', str(datetime.datetime.now()))
+  ```

@@ -1,0 +1,5 @@
+<!-- category_form_partial.html -->
+<form id="category-form" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+</form>

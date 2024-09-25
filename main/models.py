@@ -1,20 +1,12 @@
 from django.db import models
+from django.contrib.auth.models import User
 import uuid
 
-# Author Model
-class Author(models.Model):
+# Brand Model
+class Brand(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    bio = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return self.name
-
-# Publisher Model
-class Publisher(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255)
-    address = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     website = models.URLField(blank=True, null=True)
 
     def __str__(self):
@@ -28,22 +20,21 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-# Product(Book) Model
+# Product Model
 class Product(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)  
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, null=True)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
     category = models.ManyToManyField('Category', blank=True)
-    isbn = models.CharField(max_length=13, unique=True)
+    sku = models.CharField(max_length=100, unique=True) 
     stock_quantity = models.IntegerField(default=0)
-    publication_year = models.IntegerField()
-    image = models.ImageField(upload_to='book_images/', blank=True, null=True)
+    image = models.ImageField(upload_to='product_images/', blank=True, null=True)
 
     def __str__(self):
-        return self.title
+        return self.name
 
 # Customer Model
 class Customer(models.Model):
@@ -67,25 +58,25 @@ class Order(models.Model):
     def __str__(self):
         return f'Order {self.id} by {self.customer}'
 
-# Order Items Model
+# Order Item Model
 class OrderItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    book = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE) 
     quantity = models.IntegerField()
     price_at_order = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f'{self.quantity} of {self.book.title}'
+        return f'{self.quantity} of {self.product.name}'  
 
 # Review Model
 class Review(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    book = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE) 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     rating = models.IntegerField()
     comment = models.TextField(blank=True, null=True)
     review_date = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f'Review by {self.customer} on {self.book.title}'
+        return f'Review by {self.customer} on {self.product.name}' 

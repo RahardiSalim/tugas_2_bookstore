@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manga & Novel Store</title>
+    <title>Kizuna Reads - Online Store</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
@@ -15,44 +15,44 @@
         <p class="tagline">Where your imagination has no limit | Rahardi Salim 2306201861 PBP F</p>
         <nav>
             <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/books">Books</a></li>
-                <li><a href="/about">About</a></li>
-                <li><a href="/contact">Contact</a></li>
+                <li><a href="{% url 'bookstore:show_main' %}">Home</a></li>
+                <li><a href="{% url 'bookstore:product_list' %}">Products</a></li>
+                <li><a href="{% url 'bookstore:brand_list' %}">Brands</a></li>
+                <li><a href="{% url 'bookstore:category_list' %}">Categories</a></li>
+                <li><a href="{% url 'bookstore:logout' %}">Logout</a></li>
             </ul>
         </nav>
     </header>
     
-    <main>  
+    <main>
         <h2>Explore Our Collection</h2>
-        <!-- Add Book Button -->
+        <!-- Add Product Button -->
         <div class="flex justify-end mb-4">
-            <a href="{% url 'bookstore:create_product' %}">Add New Book</a>
-                Add New Book
-            </a>
+            <a href="{% url 'bookstore:create_product' %}" class="btn btn-primary">Add New Product</a>
         </div>
-        <div class="book-container">
-            {% for book in books %}
-            <div class="book-card">
-                {% if book.image %}
-                <img src="{{ book.image.url }}" alt="{{ book.title }}" class="book-image">
+        <div class="product-container">
+            {% for product in products %}
+            <div class="product-card">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
                 {% endif %}
-                <h3>{{ book.title }}</h3>
-                <p><strong>Author:</strong> {{ book.author.name }}</p>
-                <p><strong>Price:</strong> ${{ book.price }}</p>
-                <p><strong>Publication Year:</strong> {{ book.publication_year }}</p>
+                <h3>{{ product.name }}</h3>
+                <p><strong>Brand:</strong> {{ product.brand.name }}</p>
+                <p><strong>Price:</strong> ${{ product.price }}</p>
+                <p><strong>Description:</strong> {{ product.description }}</p>
                 <p><strong>Categories:</strong> 
-                    {% for category in book.category.all %}
+                    {% for category in product.category.all %}
                         {{ category.name }}{% if not forloop.last %}, {% endif %}
                     {% endfor %}
                 </p>
-                <p><strong>Description:</strong> {{ book.description }}</p>
                 <button class="btn btn-buy">Buy Now</button>
                 <button class="btn btn-cart">Add to Cart</button>
             </div>
             {% endfor %}
         </div>
     </main>
+
+    <h5>Last Login: {{ last_login }}</h5>
 
     <footer>
         <p>&copy; 2024 Kizuna Reads. All Rights Reserved.</p>

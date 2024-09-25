@@ -1,8 +1,7 @@
 from django.contrib import admin
-from .models import Author, Publisher, Category, Product, Customer, Order, OrderItem, Review
+from .models import Brand, Category, Product, Customer, Order, OrderItem, Review
 
-admin.site.register(Author)
-admin.site.register(Publisher)
+admin.site.register(Brand)
 admin.site.register(Category)
 admin.site.register(Product)
 admin.site.register(Customer)

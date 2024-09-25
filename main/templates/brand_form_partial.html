@@ -1,0 +1,5 @@
+<!-- brand_form_partial.html -->
+<form id="brand-form" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+</form>

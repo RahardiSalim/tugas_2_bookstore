@@ -1,60 +1,117 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.core import serializers
-from .models import Product as Book, Author, Publisher, Category, Customer, Order, OrderItem, Review
-from .forms import AuthorForm, PublisherForm, CategoryForm, ProductForm, CustomerForm, OrderForm, OrderItemForm, ReviewForm
+from .models import Product, Brand, Category, Customer, Order, OrderItem, Review
+from .forms import BrandForm, CategoryForm, ProductForm, CustomerForm, OrderForm, OrderItemForm, ReviewForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+import datetime
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.template.loader import render_to_string
 
-# View to display all books
+# View to display all products
+@login_required(login_url='/login')
 def show_main(request):
-    books = Book.objects.all()
+    products = Product.objects.all()
     context = {
-        'books': books,
+        'products': products,
+        'last_login': request.COOKIES.get('last_login', 'Never'),
+        'name': request.user.username,
     }
     return render(request, "main.html", context)
 
-# View for creating a new Author
-def create_author(request):
-    if request.method == 'POST':
-        form = AuthorForm(request.POST)
+def register(request):
+    form = UserCreationForm()
+
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('bookstore:author_list')  
-    else:
-        form = AuthorForm()
-    return render(request, 'author_form.html', {'form': form})
+            messages.success(request, 'Your account has been successfully created!')
+            return redirect('bookstore:login')
+    context = {'form': form}
+    return render(request, 'register.html', context)
 
-# View for creating a new Publisher
-def create_publisher(request):
-    if request.method == 'POST':
-        form = PublisherForm(request.POST)
+def login_user(request):
+   if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+
         if form.is_valid():
-            form.save()
-            return redirect('bookstore:publisher_list') 
-    else:
-        form = PublisherForm()
-    return render(request, 'publisher_form.html', {'form': form})
+            user = form.get_user()
+            login(request, user)
+            response = HttpResponseRedirect(reverse("bookstore:show_main"))
+            response.set_cookie('last_login', str(datetime.datetime.now()))
+            return response
 
-# View for creating a new Category
+   else:
+      form = AuthenticationForm(request)
+   context = {'form': form}
+   return render(request, 'login.html', context)
+
+def logout_user(request):
+    logout(request)
+    response = HttpResponseRedirect(reverse('bookstore:login'))
+    response.delete_cookie('last_login')
+    return response
+
+def create_brand(request):
+    if request.method == 'POST':
+        form = BrandForm(request.POST)
+        if form.is_valid():
+            brand = form.save()
+            return JsonResponse({'success': True, 'brand': brand.name, 'id': brand.id})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+    else:
+        # When the request is not POST, return the form with an empty state
+        form = BrandForm()
+        return JsonResponse({'success': False, 'html': form.as_p()}, status=400)
+
+
 def create_category(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('bookstore:category_list') 
+            category = form.save()
+            return JsonResponse({'success': True, 'category': category.name, 'id': category.id})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
     else:
         form = CategoryForm()
-    return render(request, 'category_form.html', {'form': form})
+        return JsonResponse({'success': False, 'html': form.as_p()}, status=400)
 
-# View for creating a new Product (Book)
+
 def create_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES) 
         if form.is_valid():
-            form.save()
-            return redirect('bookstore:product_list') 
+            product = form.save(commit=False)
+            product.user = request.user
+            product.save()
+            form.save_m2m()  # Save the many-to-many field
+            return redirect('bookstore:show_main') 
     else:
         form = ProductForm()
-    return render(request, 'product_form.html', {'form': form})
+
+    # Fetch brands and categories for the dropdowns
+    brands = Brand.objects.all()
+    categories = Category.objects.all()
+
+    return render(request, 'product_form.html', {'form': form, 'brands': brands, 'categories': categories})
+
+def brand_form_view(request):
+    form = BrandForm()
+    html = render_to_string('brand_form_partial.html', {'form': form})
+    return JsonResponse({'html': html})
+
+def category_form_view(request):
+    form = CategoryForm()
+    html = render_to_string('category_form_partial.html', {'form': form})
+    return JsonResponse({'html': html})
+
 
 # View for creating a new Customer
 def create_customer(request):
@@ -100,26 +157,19 @@ def create_review(request):
         form = ReviewForm()
     return render(request, 'review_form.html', {'form': form})
 
-
-
-# View for listing all authors
-def author_list(request):
-    authors = Author.objects.all()
-    return render(request, 'author_list.html', {'authors': authors})
-
-# View for listing all publishers
-def publisher_list(request):
-    publishers = Publisher.objects.all()
-    return render(request, 'publisher_list.html', {'publishers': publishers})
+# View for listing all brands
+def brand_list(request):
+    brands = Brand.objects.all()
+    return render(request, 'brand_list.html', {'brands': brands})
 
 # View for listing all categories
 def category_list(request):
     categories = Category.objects.all()
     return render(request, 'category_list.html', {'categories': categories})
 
-# View for listing all products (books)
+# View for listing all products
 def product_list(request):
-    products = Book.objects.all() 
+    products = Product.objects.all() 
     return render(request, 'product_list.html', {'products': products})
 
 # View for listing all customers
@@ -142,40 +192,34 @@ def review_list(request):
     reviews = Review.objects.all()
     return render(request, 'review_list.html', {'reviews': reviews})
 
+# # JSON view for all products
+# def product_list_json(request):
+#     products = Product.objects.all()
+#     data = list(products.values())  # Convert QuerySet to list of dictionaries
+#     return JsonResponse(data, safe=False)
 
+# # XML view for all products
+# def product_list_xml(request):
+#     products = Product.objects.all()
+#     data = serializers.serialize("xml", products)
+#     return HttpResponse(data, content_type="application/xml")
 
+# # JSON view for a specific product by ID
+# def product_detail_json(request, id):
+#     product = get_object_or_404(Product, id=id)
+#     data = {
+#         "name": product.name,
+#         "price": product.price,
+#         "description": product.description,
+#         "brand": str(product.brand),
+#         "category": [str(cat) for cat in product.category.all()],
+#         "sku": product.sku,
+#         "stock_quantity": product.stock_quantity,
+#     }
+#     return JsonResponse(data)
 
-
-# JSON view for all books
-def book_list_json(request):
-    books = Book.objects.all()
-    data = list(books.values())  # Convert QuerySet to list of dictionaries
-    return JsonResponse(data, safe=False)
-
-# XML view for all books
-def book_list_xml(request):
-    books = Book.objects.all()
-    data = serializers.serialize("xml", books)
-    return HttpResponse(data, content_type="application/xml")
-
-# JSON view for a specific book by ID
-def book_detail_json(request, id):
-    book = get_object_or_404(Book, id=id)
-    data = {
-        "title": book.title,
-        "price": book.price,
-        "description": book.description,
-        "author": str(book.author),
-        "publisher": str(book.publisher),
-        "category": str(book.category),
-        "isbn": book.isbn,
-        "stock_quantity": book.stock_quantity,
-        "publication_year": book.publication_year,
-    }
-    return JsonResponse(data)
-
-# XML view for a specific book by ID
-def book_detail_xml(request, id):
-    book = get_object_or_404(Book, id=id)
-    data = serializers.serialize("xml", [book])
-    return HttpResponse(data, content_type="application/xml")
+# # XML view for a specific product by ID
+# def product_detail_xml(request, id):
+#     product = get_object_or_404(Product, id=id)
+#     data = serializers.serialize("xml", [product])
+#     return HttpResponse(data, content_type="application/xml")
