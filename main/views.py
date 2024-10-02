@@ -24,21 +24,22 @@ def show_main(request):
     return render(request, "main.html", context)
 
 def register(request):
-    form = UserCreationForm()
+    form = UserCreationForm() 
 
-    if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
+    if request.method == "POST":  
+        form = UserCreationForm(request.POST) 
+        if form.is_valid(): 
+            form.save() 
             messages.success(request, 'Your account has been successfully created!')
-            return redirect('bookstore:login')
-        else:
+            return redirect('bookstore:login') 
+        else:  
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field.capitalize()}: {error}")
 
-    context = {'form': form}
+    context = {'form': form}  
     return render(request, 'register.html', context)
+
 
 
 def login_user(request):
