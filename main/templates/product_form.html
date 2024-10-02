@@ -1,77 +1,146 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load static %}
+
+{% block meta %}
+<title>Add Product</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<style>
+    :root {
+        --color-primary: #003135;
+        --color-secondary: #024950;
+        --color-accent: #964734;
+        --color-highlight: #0FA4AF;
+        --color-light: #AFDDE5;
+        --input-background: #f0f9f9;
+        --input-border-color: #0FA4AF;
+    }
+
+    .form-input {
+        @apply w-full px-3 py-2 border border-input-border-color bg-input-background rounded-md focus:outline-none focus:ring-2 focus:ring-highlight;
+    }
+
+    .form-label {
+        @apply block text-primary font-semibold mb-2;
+    }
+
+    .btn-primary {
+        @apply bg-secondary hover:bg-primary text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out w-full;
+    }
+
+    .btn-secondary {
+        @apply bg-accent hover:bg-highlight text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out;
+    }
+
+    .form-container {
+        @apply bg-white shadow-md rounded-lg p-6 space-y-6 border border-gray-300; /* Adding border to form container */
+    }
+
+    .form-page {
+        @apply flex flex-col min-h-screen bg-gray-100 p-8; /* Form page background and padding */
+    }
+
+    .field-border {
+        @apply border-2 border-highlight rounded-md; /* Specific fields with border and color */
+    }
+
+    .container-border {
+        @apply border-2 border-gray-300 rounded-lg p-4; /* Add border around the entire container */
+    }
+</style>
+{% endblock meta %}
+
 {% block content %}
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<div class="container mt-5">
-    <h2>Add New Product</h2>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="name" class="form-label">Product Name</label>
-                {{ form.name }}
-            </div>
-            <div class="col-md-6">
-                <label for="price" class="form-label">Price</label>
-                {{ form.price }}
-            </div>
-        </div>
+{% include 'navbar.html' %}
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="brand" class="form-label">Brand</label>
-                {{ form.brand }}
-                <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#addBrandModal" id="add-brand-btn">+ Add new Brand</button>
-            </div>
-            <div class="col-md-6">
-                <label for="category" class="form-label">Category</label>
-                {{ form.category }}
-                <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#addCategoryModal" id="add-category-btn">+ Add new Category</button>
-            </div>
-        </div>
+<div class="form-page bg-gray-50 py-8 mt-16">
+    <div class="container mx-auto px-4 max-w-2xl">
 
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <label for="description" class="form-label">Description</label>
-                {{ form.description }}
-            </div>
-        </div>
+        <h1 class="text-3xl font-bold text-center mb-8 text-black">Add New Product</h1>
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="sku" class="form-label">SKU</label>
-                {{ form.sku }}
-            </div>
-            <div class="col-md-6">
-                <label for="stock_quantity" class="form-label">Stock Quantity</label>
-                {{ form.stock_quantity }}
-            </div>
-        </div>
+        <!-- Form Container -->
+        <div class="form-container bg-white p-8 shadow-lg rounded-lg border border-gray-200">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="space-y-6">
 
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <label for="image" class="form-label">Product Image</label>
-                {{ form.image }}
-            </div>
-        </div>
+                    <!-- Product Name -->
+                    <div class="flex flex-col">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">Product Name</label>
+                        {{ form.name|add_class:"form-input" }}
+                    </div>
 
-        <button type="submit" class="btn btn-primary">Save Product</button>
-    </form>
+                    <!-- Price -->
+                    <div class="flex flex-col">
+                        <label for="{{ form.price.id_for_label }}" class="form-label">Price</label>
+                        {{ form.price|add_class:"form-input" }}
+                    </div>
+
+                    <!-- Brand -->
+                    <div class="flex flex-col">
+                        <label for="{{ form.brand.id_for_label }}" class="form-label">Brand</label>
+                        {{ form.brand|add_class:"form-input" }}
+                        <button type="button" class="btn-secondary mt-2" data-bs-toggle="modal" data-bs-target="#addBrandModal">+ Add new Brand</button>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="flex flex-col">
+                        <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                        {{ form.category|add_class:"form-input select2-multiple" }}
+                        <button type="button" class="btn-secondary mt-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">+ Add new Category</button>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="flex flex-col">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description|add_class:"form-input" }}
+                    </div>
+
+                    <!-- SKU -->
+                    <div class="flex flex-col">
+                        <label for="{{ form.sku.id_for_label }}" class="form-label">SKU</label>
+                        {{ form.sku|add_class:"form-input" }}
+                    </div>
+
+                    <!-- Stock Quantity -->
+                    <div class="flex flex-col">
+                        <label for="{{ form.stock_quantity.id_for_label }}" class="form-label">Stock Quantity</label>
+                        {{ form.stock_quantity|add_class:"form-input" }}
+                    </div>
+
+                    <!-- Product Image -->
+                    <div class="flex flex-col">
+                        <label for="{{ form.image.id_for_label }}" class="form-label">Product Image</label>
+                        {{ form.image|add_class:"form-input" }}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-center mt-6">
+                        <button type="submit" class="btn-primary w-full sm:w-auto">Save Product</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- Modal for adding new Brand -->
 <div class="modal fade" id="addBrandModal" tabindex="-1" aria-labelledby="addBrandModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addBrandModalLabel">Add New Brand</h5>
+        <div class="modal-content bg-white rounded-lg shadow-lg">
+            <div class="modal-header bg-secondary text-white px-4 py-3">
+                <h5 class="modal-title font-bold" id="addBrandModalLabel">Add New Brand</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="brandModalBody">  
-                <!-- Brand form will be inserted here -->
+            <div class="modal-body" id="brandModalBody">
+                <!-- Brand form will be dynamically loaded here -->
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" form="brand-form">Save Brand</button>
+            <div class="modal-footer justify-between px-4 py-3">
+                <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn-primary" form="brand-form">Save Brand</button>
             </div>
         </div>
     </div>
@@ -80,128 +149,136 @@
 <!-- Modal for adding new Category -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+        <div class="modal-content bg-white rounded-lg shadow-lg">
+            <div class="modal-header bg-secondary text-white px-4 py-3">
+                <h5 class="modal-title font-bold" id="addCategoryModalLabel">Add New Category</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="categoryModalBody">  
-                <!-- Category form will be inserted here -->
+            <div class="modal-body" id="categoryModalBody">
+                <!-- Category form will be dynamically loaded here -->
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" form="category-form">Save Category</button>
+            <div class="modal-footer justify-between px-4 py-3">
+                <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn-primary" form="category-form">Save Category</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap JS and Popper.js -->
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Utility function to get the CSRF token from the cookie
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Check if the cookie string starts with the required name
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+    $(document).ready(function() {
+        // Initialize select2 for categories with multiple selection
+        $('.select2-multiple').select2({
+            theme: 'classic',
+            placeholder: 'Select categories',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // Fetch the form for the Brand modal
+        $('#addBrandModal').on('show.bs.modal', function () {
+            $('#brandModalBody').html('<p>Loading...</p>');  // Display loading text
+            fetch("{% url 'bookstore:brand_form' %}")
+                .then(response => response.json())
+                .then(data => {
+                    $('#brandModalBody').html(data.html);
+                })
+                .catch(error => {
+                    console.error('Error fetching form:', error);
+                    $('#brandModalBody').html('<p>Error loading form. Please try again.</p>');  // Error message
+                });
+        });
+
+        // Fetch the form for the Category modal
+        $('#addCategoryModal').on('show.bs.modal', function () {
+            $('#categoryModalBody').html('<p>Loading...</p>');  // Display loading text
+            fetch("{% url 'bookstore:category_form' %}")
+                .then(response => response.json())
+                .then(data => {
+                    $('#categoryModalBody').html(data.html);
+                })
+                .catch(error => {
+                    console.error('Error fetching form:', error);
+                    $('#categoryModalBody').html('<p>Error loading form. Please try again.</p>');  // Error message
+                });
+        });
+
+        // Handle brand form submission
+        $(document).on('submit', '#brand-form', function(e) {
+            e.preventDefault();
+            submitForm(this, "{% url 'bookstore:create_brand' %}", 'Brand');
+        });
+
+        // Handle category form submission
+        $(document).on('submit', '#category-form', function(e) {
+            e.preventDefault();
+            submitForm(this, "{% url 'bookstore:create_category' %}", 'Category');
+        });
+
+        // General function to submit the forms (brand/category)
+        function submitForm(form, url, itemType) {
+            const formData = new FormData(form);
+            fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(itemType + ' created: ' + data[itemType.toLowerCase()]);
+                    $('#add' + itemType + 'Modal').modal('hide');
+                    // Refresh the corresponding select field
+                    if (itemType === 'Brand') {
+                        refreshSelect('{{ form.brand.id_for_label }}', data.brand, data.brand_id);
+                    } else if (itemType === 'Category') {
+                        refreshSelect('{{ form.category.id_for_label }}', data.category, data.category_id);
+                    }
+                } else {
+                    alert('Error: ' + JSON.stringify(data.errors));
+                }
+            })
+            .catch(error => console.error('Error submitting ' + itemType.toLowerCase() + ' form:', error));
+        }
+
+        // Function to refresh the select2 input after adding a new category or brand
+        function refreshSelect(selectId, newItemName, newItemId) {
+            const select = $('#' + selectId);
+            const newOption = new Option(newItemName, newItemId, true, true);
+            select.append(newOption).trigger('change');
+
+            // Re-initialize select2 for the category select after updating options
+            if (selectId === '{{ form.category.id_for_label }}') {
+                select.select2('destroy').select2({
+                    theme: 'classic',
+                    placeholder: 'Select categories',
+                    allowClear: true,
+                    width: '100%'
+                });
             }
         }
-    }
-    return cookieValue;
-}
 
-// Get the CSRF token from the cookie
-const csrftoken = getCookie('csrftoken');
-
-// Load the brand form dynamically when the "Add New Brand" button is clicked
-document.getElementById('add-brand-btn').addEventListener('click', function() {
-    // Fetch the brand form from the server
-    fetch("{% url 'bookstore:brand_form' %}")
-        .then(response => response.json())
-        .then(data => {
-            // Inject the form into the modal body
-            document.getElementById('brandModalBody').innerHTML = data.html;
-            
-            // Add event listener to the dynamically loaded form to handle submission
-            document.getElementById('brand-form').addEventListener('submit', function(e) {
-                e.preventDefault(); // Prevent default form submission
-
-                const formData = new FormData(this); // Get form data
-
-                // Send the form data to the server via POST request
-                fetch("{% url 'bookstore:create_brand' %}", {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': csrftoken,  // Pass the CSRF token
-                        'X-Requested-With': 'XMLHttpRequest' // Indicate it's an AJAX request
+        // Get CSRF token for form submissions
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; cookies.length > i; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Brand created: ' + data.brand);
-                        $('#addBrandModal').modal('hide'); // Close modal
-                    } else {
-                        alert('Error: ' + JSON.stringify(data.errors));
-                    }
-                })
-                .catch(error => console.error('Error submitting form:', error));
-            });
-        })
-        .catch(error => console.error('Error fetching form:', error));
-});
-
-// Load the category form dynamically when the "Add New Category" button is clicked
-document.getElementById('add-category-btn').addEventListener('click', function() {
-    // Fetch the category form from the server
-    fetch("{% url 'bookstore:category_form' %}")
-        .then(response => response.json())
-        .then(data => {
-            // Inject the form into the modal body
-            document.getElementById('categoryModalBody').innerHTML = data.html;
-
-            // Add event listener to the dynamically loaded form to handle submission
-            document.getElementById('category-form').addEventListener('submit', function(e) {
-                e.preventDefault(); // Prevent default form submission
-
-                const formData = new FormData(this); // Get form data
-
-                // Send the form data to the server via POST request
-                fetch("{% url 'bookstore:create_category' %}", {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': csrftoken,  // Pass the CSRF token
-                        'X-Requested-With': 'XMLHttpRequest' // Indicate it's an AJAX request
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Category created: ' + data.category);
-                        $('#addCategoryModal').modal('hide'); // Close modal
-                    } else {
-                        alert('Error: ' + JSON.stringify(data.errors));
-                    }
-                })
-                .catch(error => console.error('Error submitting form:', error));
-            });
-        })
-        .catch(error => console.error('Error fetching form:', error));
-});
-
-
-
-
+                }
+            }
+            return cookieValue;
+        }
+    });
 </script>
 
-{% endblock %}
+{% endblock content %}

@@ -5,28 +5,76 @@
 {% endblock meta %}
 
 {% block content %}
-<div class="login">
-  <h1>Login</h1>
-
-  <form method="POST" action="">
-    {% csrf_token %}
-    <table>
-      {{ form.as_table }}
-      <tr>
-        <td></td>
-        <td><input class="btn login_btn" type="submit" value="Login" /></td>
-      </tr>
-    </table>
-  </form>
-
-  {% if messages %}
-  <ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %} Don't have an account yet?
-  <a href="{% url 'bookstore:register' %}">Register Now</a>
+<div class="flex h-screen">
+  <!-- Left Pane -->
+  <div class="hidden lg:flex items-center justify-center flex-1 bg-white text-black">
+    <div class="max-w-md text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" width="524.67004" height="531.39694" class="w-full" alt="https://undraw.co/illustrations" title="https://undraw.co/illustrations" viewBox="0 0 524.67004 531.39694" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <!-- SVG content here -->
+      </svg>
+    </div>
+  </div>
+  <!-- Right Pane -->
+  <div class="w-full bg-gray-100 lg:w-1/2 flex items-center justify-center">
+    <div class="max-w-md w-full p-6">
+      <h1 class="text-3xl font-semibold mb-6 text-black text-center">Login</h1>
+      <h1 class="text-sm font-semibold mb-6 text-gray-500 text-center">Welcome back! Please login to your account</h1>
+      <div class="mt-4 flex flex-col lg:flex-row items-center justify-between">
+        <div class="w-full lg:w-1/2 mb-2 lg:mb-0">
+          <button type="button" class="w-full flex justify-center items-center gap-2 bg-white text-sm text-gray-600 p-2 rounded-md hover:bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4" id="google">
+              <!-- Google SVG content here -->
+            </svg> Login with Google
+          </button>
+        </div>
+        <div class="w-full lg:w-1/2 ml-0 lg:ml-2">
+          <button type="button" class="w-full flex justify-center items-center gap-2 bg-white text-sm text-gray-600 p-2 rounded-md hover:bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" id="github" class="w-4">
+              <!-- GitHub SVG content here -->
+            </svg> Login with Github
+          </button>
+        </div>
+      </div>
+      <div class="mt-4 text-sm text-gray-600 text-center">
+        <p>or with email</p>
+      </div>
+      <form method="POST" action="" class="space-y-4">
+        {% csrf_token %}
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input type="text" id="username" name="username" required class="mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300">
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input type="password" id="password" name="password" required class="mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300">
+        </div>
+        <div>
+          <button type="submit" class="w-full bg-black text-white p-2 rounded-md hover:bg-gray-800 focus:outline-none focus:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors duration-300">Login</button>
+        </div>
+      </form>
+      {% if messages %}
+      <div class="mt-4">
+        {% for message in messages %}
+        {% if message.tags == "success" %}
+              <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                  <span class="block sm:inline">{{ message }}</span>
+              </div>
+          {% elif message.tags == "error" %}
+              <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                  <span class="block sm:inline">{{ message }}</span>
+              </div>
+          {% else %}
+              <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative" role="alert">
+                  <span class="block sm:inline">{{ message }}</span>
+              </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="mt-4 text-sm text-gray-600 text-center">
+        <p>Don't have an account? <a href="{% url 'bookstore:register' %}" class="text-black hover:underline">Register here</a></p>
+      </div>
+    </div>
+  </div>
 </div>
-
 {% endblock content %}

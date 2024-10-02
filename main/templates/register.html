@@ -1,32 +1,74 @@
 {% extends 'base.html' %}
 
 {% block meta %}
-<title>Register</title>
+<title>Sign Up</title>
 {% endblock meta %}
 
 {% block content %}
-
-<div class="login">
-  <h1>Register</h1>
-
-  <form method="POST">
-    {% csrf_token %}
-    <table>
-      {{ form.as_table }}
-      <tr>
-        <td></td>
-        <td><input type="submit" name="submit" value="Daftar" /></td>
-      </tr>
-    </table>
-  </form>
-
-  {% if messages %}
-  <ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+<div class="flex h-screen">
+  <!-- Left Pane -->
+  <div class="hidden lg:flex items-center justify-center flex-1 bg-white text-black">
+    <div class="max-w-md text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" width="524.67004" height="531.39694" class="w-full" alt="https://undraw.co/illustrations" title="https://undraw.co/illustrations" viewBox="0 0 524.67004 531.39694" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <!-- SVG content here -->
+      </svg>
+    </div>
+  </div>
+  <!-- Right Pane -->
+  <div class="w-full bg-gray-100 lg:w-1/2 flex items-center justify-center">
+    <div class="max-w-md w-full p-6">
+      <h1 class="text-3xl font-semibold mb-6 text-black text-center">Sign Up</h1>
+      <h1 class="text-sm font-semibold mb-6 text-gray-500 text-center">Join our Community with all time access and free</h1>
+      <div class="mt-4 flex flex-col lg:flex-row items-center justify-between">
+        <div class="w-full lg:w-1/2 mb-2 lg:mb-0">
+          <button type="button" class="w-full flex justify-center items-center gap-2 bg-white text-sm text-gray-600 p-2 rounded-md hover:bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4" id="google">
+              <!-- Google icon SVG content -->
+            </svg> Sign Up with Google
+          </button>
+        </div>
+        <div class="w-full lg:w-1/2 ml-0 lg:ml-2">
+          <button type="button" class="w-full flex justify-center items-center gap-2 bg-white text-sm text-gray-600 p-2 rounded-md hover:bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" id="github" class="w-4">
+              <!-- GitHub icon SVG content -->
+            </svg> Sign Up with Github
+          </button>
+        </div>
+      </div>
+      <div class="mt-4 text-sm text-gray-600 text-center">
+        <p>or with email</p>
+      </div>
+      <form method="POST" class="space-y-4">
+        {% csrf_token %}
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input type="text" id="username" name="username" required class="mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300">
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input type="password" id="password" name="password" required class="mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300">
+        </div>
+        <div>
+          <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+          <input type="password" id="confirm_password" name="confirm_password" required class="mt-1 p-2 w-full border rounded-md focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors duration-300">
+        </div>
+        <div>
+          <button type="submit" class="w-full bg-black text-white p-2 rounded-md hover:bg-gray-800 focus:outline-none focus:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors duration-300">Sign Up</button>
+        </div>
+      </form>
+      {% if messages %}
+      <div class="mt-4">
+        {% for message in messages %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <span class="block sm:inline">{{ message }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="mt-4 text-sm text-gray-600 text-center">
+        <p>Already have an account? <a href="{% url 'bookstore:login' %}" class="text-black hover:underline">Login here</a></p>
+      </div>
+    </div>
+  </div>
 </div>
-
 {% endblock content %}

@@ -1,64 +1,68 @@
 {% extends 'base.html' %}
 {% load static %}
+
+{% block meta %}
+<title>BookStore - Your Literary Haven</title>
+{% endblock meta %}
+
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kizuna Reads - Online Store</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
-    <header>
-        <h1>Welcome to Kizuna Reads</h1>
-        <p class="tagline">Where your imagination has no limit | Rahardi Salim 2306201861 PBP F</p>
-        <nav>
-            <ul>
-                <li><a href="{% url 'bookstore:show_main' %}">Home</a></li>
-                <li><a href="{% url 'bookstore:product_list' %}">Products</a></li>
-                <li><a href="{% url 'bookstore:brand_list' %}">Brands</a></li>
-                <li><a href="{% url 'bookstore:category_list' %}">Categories</a></li>
-                <li><a href="{% url 'bookstore:logout' %}">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <main>
-        <h2>Explore Our Collection</h2>
-        <!-- Add Product Button -->
-        <div class="flex justify-end mb-4">
-            <a href="{% url 'bookstore:create_product' %}" class="btn btn-primary">Add New Product</a>
+{% include 'navbar.html' %}
+<div class="overflow-x-hidden px-4 md:px-8 pb-8 pt-24 min-h-screen bg-[#AFDDE5] flex flex-col">
+    <!-- Hero Section -->
+    <div class="bg-[#003135] text-white py-16 px-4 mb-8 rounded-lg shadow-lg">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl font-bold mb-4">Welcome to KitaKita</h1>
+            <p class="text-xl mb-6">Discover your Kita in our curated collection of KitaKitaa.</p>
+            <a href="#products" class="bg-[#0FA4AF] hover:bg-[#024950] text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
+                Ikuyoooooooo Kita
+            </a>
         </div>
-        <div class="product-container">
+    </div>
+
+    <!-- Last Login Info -->
+    <div class="px-3 mb-4">
+        <div class="flex rounded-md items-center bg-[#964734] py-2 px-4 w-fit">
+            <h2 class="text-white text-center">Last Login: {{last_login}}</h2>
+        </div>
+    </div>
+
+    <!-- Add New Product Button -->
+    <div class="flex justify-end mb-6">
+        <a href="{% url 'bookstore:create_product' %}" class="bg-[#024950] hover:bg-[#003135] text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
+            Add New Product
+        </a>
+    </div>
+
+    <!-- Products Section -->
+    <div id="products" class="bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-3xl font-bold mb-6 text-[#003135]">Our Kita</h2>
+        {% if not products %}
+        <div class="flex flex-col items-center justify-center min-h-[24rem] p-6">
+            <img src="{% static 'image/sedih-banget.png' %}" alt="No products" class="w-32 h-32 mb-4"/>
+            <p class="text-center text-[#964734] mt-4">No products available in the list yet.</p>
+        </div>
+        {% else %}
+        <div class="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6 w-full">
             {% for product in products %}
-            <div class="product-card">
-                {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
-                {% endif %}
-                <h3>{{ product.name }}</h3>
-                <p><strong>Brand:</strong> {{ product.brand.name }}</p>
-                <p><strong>Price:</strong> ${{ product.price }}</p>
-                <p><strong>Description:</strong> {{ product.description }}</p>
-                <p><strong>Categories:</strong> 
-                    {% for category in product.category.all %}
-                        {{ category.name }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </p>
-                <button class="btn btn-buy">Buy Now</button>
-                <button class="btn btn-cart">Add to Cart</button>
-            </div>
+            {% include 'card_product.html' with product=product %}
             {% endfor %}
         </div>
-    </main>
+        {% endif %}
+    </div>
+</div>
 
-    <h5>Last Login: {{ last_login }}</h5>
-
-    <footer>
-        <p>&copy; 2024 Kizuna Reads. All Rights Reserved.</p>
-    </footer>
-    
-    <script src="{% static 'js/script.js' %}"></script>
-</body>
-</html>
+<style>
+    body {
+        background-color: #AFDDE5;
+    }
+    .bg-indigo-600 {
+        background-color: #024950;
+    }
+    .bg-indigo-600:hover {
+        background-color: #003135;
+    }
+    .text-gray-600 {
+        color: #964734;
+    }
+</style>
 {% endblock content %}

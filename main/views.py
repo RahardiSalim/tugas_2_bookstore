@@ -32,8 +32,14 @@ def register(request):
             form.save()
             messages.success(request, 'Your account has been successfully created!')
             return redirect('bookstore:login')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.capitalize()}: {error}")
+
     context = {'form': form}
     return render(request, 'register.html', context)
+
 
 def login_user(request):
    if request.method == 'POST':
@@ -45,11 +51,15 @@ def login_user(request):
             response = HttpResponseRedirect(reverse("bookstore:show_main"))
             response.set_cookie('last_login', str(datetime.datetime.now()))
             return response
+        else:
+            messages.error(request, 'Your email or password is incorrect.')
+            return redirect('bookstore:login')
 
    else:
       form = AuthenticationForm(request)
    context = {'form': form}
    return render(request, 'login.html', context)
+
 
 def logout_user(request):
     logout(request)
@@ -57,6 +67,7 @@ def logout_user(request):
     response.delete_cookie('last_login')
     return response
 
+@login_required(login_url='/login')
 def create_brand(request):
     if request.method == 'POST':
         form = BrandForm(request.POST)
@@ -66,11 +77,11 @@ def create_brand(request):
         else:
             return JsonResponse({'success': False, 'errors': form.errors}, status=400)
     else:
-        # When the request is not POST, return the form with an empty state
         form = BrandForm()
-        return JsonResponse({'success': False, 'html': form.as_p()}, status=400)
+        html = render_to_string('brand_form_partial.html', {'form': form}, request=request)
+        return JsonResponse({'html': html})
 
-
+@login_required(login_url='/login')
 def create_category(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
@@ -81,9 +92,10 @@ def create_category(request):
             return JsonResponse({'success': False, 'errors': form.errors}, status=400)
     else:
         form = CategoryForm()
-        return JsonResponse({'success': False, 'html': form.as_p()}, status=400)
+        html = render_to_string('category_form_partial.html', {'form': form}, request=request)
+        return JsonResponse({'html': html})
 
-
+@login_required(login_url='/login')
 def create_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES) 
@@ -101,6 +113,28 @@ def create_product(request):
     categories = Category.objects.all()
 
     return render(request, 'product_form.html', {'form': form, 'brands': brands, 'categories': categories})
+
+@login_required(login_url='/login')
+def edit_product(request, id):
+    # Get the product entry based on id
+    product = get_object_or_404(Product, pk=id)
+
+    # Set the product as an instance of the form, pre-populating the form
+    form = ProductForm(request.POST or None, request.FILES or None, instance=product)
+
+    if form.is_valid() and request.method == "POST":
+        # Save the form and redirect to the main product page
+        form.save()
+        return HttpResponseRedirect(reverse('bookstore:show_main'))
+
+    context = {'form': form, 'product': product}
+    return render(request, "edit_product.html", context)
+
+@login_required(login_url='/login')
+def delete_product(request, id):
+    product = Product.objects.get(pk=id)
+    product.delete()
+    return HttpResponseRedirect(reverse('bookstore:show_main'))
 
 def brand_form_view(request):
     form = BrandForm()

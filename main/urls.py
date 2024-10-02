@@ -1,5 +1,5 @@
 from django.urls import path
-from main.views import show_main, login_user, logout_user, register, brand_form_view, category_form_view
+from main.views import show_main, login_user, logout_user, register, brand_form_view, category_form_view, edit_product, delete_product
 from . import views
 
 app_name = 'bookstore'
@@ -24,6 +24,8 @@ urlpatterns = [
     # Product URLs
     path('products/', views.product_list, name='product_list'), 
     path('products/create/', views.create_product, name='create_product'),
+    path('edit-product/<uuid:id>/', edit_product, name='edit_product'),
+    path('delete-product/<uuid:id>/', delete_product, name='delete_product'),
     
     # Customer URLs
     path('customers/', views.customer_list, name='customer_list'), 

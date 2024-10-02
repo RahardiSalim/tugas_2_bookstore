@@ -411,3 +411,109 @@ Berikut adalah langkah-langkah detail untuk mengimplementasikan checklist yang d
   ```python
   response.set_cookie('last_login', str(datetime.datetime.now()))
   ```
+
+# TUGAS 5
+
+## **1. CSS Selector Priorities**
+Jika terdapat beberapa CSS selector yang mengarah ke elemen HTML yang sama, browser akan memilih selector mana yang akan digunakan berdasarkan urutan prioritas berikut:
+
+- **Inline Styles:** CSS yang langsung ditulis di elemen HTML menggunakan atribut `style=""`. Ini memiliki prioritas tertinggi.
+- **ID Selectors:** Selektor ID (`#id`) memiliki prioritas lebih tinggi dibandingkan class atau tag.
+- **Class Selectors:** Selektor class (`.class`), pseudo-class (`:hover`), dan attribute selector (`[type="text"]`) memiliki prioritas yang lebih rendah dari ID tapi lebih tinggi dari selektor elemen.
+- **Type Selectors:** Selektor elemen atau tag (`h1`, `div`, `p`, dll.) memiliki prioritas terendah.
+- **Universal Selector (`*`)** dan **Inheritance**: Ini memiliki prioritas yang paling rendah.
+
+Jika dua selector memiliki prioritas yang sama, yang terakhir didefinisikan dalam CSS akan digunakan.
+
+## **2. Pentingnya Responsive Design**
+**Responsive design** sangat penting dalam pengembangan aplikasi web karena pengguna mengakses aplikasi dari berbagai perangkat dengan ukuran layar yang berbeda, seperti smartphone, tablet, laptop, dan desktop. Jika sebuah aplikasi tidak responsive, maka tampilannya bisa menjadi tidak user-friendly dan tidak sesuai untuk ukuran layar tertentu, yang bisa mengurangi pengalaman pengguna.
+
+**Contoh aplikasi yang menerapkan responsive design dengan baik:**
+- **YouTube:** Aplikasi ini menyesuaikan tampilan antarmuka pengguna untuk berbagai perangkat, baik di desktop maupun mobile. Video, navbar, dan layout menyesuaikan ukuran layar dengan baik.
+  
+**Contoh aplikasi yang tidak menerapkan responsive design:**
+- **Beberapa situs lama:** Beberapa website lama tidak memiliki layout yang bisa beradaptasi dengan ukuran layar mobile, sehingga pengguna harus melakukan zoom in dan out untuk mengakses konten. Salah satu contohnya adalah website ini https://dequeuniversity.com/library/responsive/1-non-responsive
+
+Responsive design meningkatkan aksesibilitas, kemudahan penggunaan, dan pengalaman pengguna secara keseluruhan, sehingga sangat penting untuk diterapkan.
+
+## **3. Perbedaan Margin, Border, dan Padding**
+- **Margin**: Ruang di luar border elemen. Digunakan untuk membuat jarak antara elemen dengan elemen lainnya.
+- **Border**: Garis yang mengelilingi elemen, terletak di antara padding dan margin. Border bisa diatur ketebalannya, jenisnya (solid, dashed, dotted), dan warnanya.
+- **Padding**: Ruang di dalam border elemen, yaitu antara konten elemen dan border-nya.
+
+Implementasi:
+
+```css
+.box {
+    margin: 20px;  
+    border: 2px solid black; 
+    padding: 10px; 
+}
+```
+
+## **4. Konsep Flexbox dan Grid Layout**
+- **Flexbox**: Flexbox adalah sistem layout satu dimensi yang memudahkan pengaturan elemen dalam satu baris (row) atau satu kolom (column). Flexbox digunakan ketika kita ingin membuat layout yang dinamis dan fleksibel. Misalnya, ketika kita ingin membuat card yang dapat menyesuaikan ukurannya sesuai dengan ruang yang tersedia.
+
+- **Grid Layout**: Grid layout adalah sistem layout dua dimensi yang memungkinkan pengaturan elemen dalam baris dan kolom. Grid layout lebih cocok untuk layout yang lebih kompleks, seperti layout halaman utama yang memiliki banyak section berbeda.
+
+Flexbox lebih baik untuk layout sederhana satu dimensi, sementara Grid lebih baik untuk layout yang lebih kompleks dan multi-dimensi.
+
+---
+
+## **5. Implementasi Checklist Secara Step-by-Step**
+
+1. **Mengimplementasikan Delete dan Edit Product:**
+   - Di dalam `views.py`, saya menambahkan fungsi `edit_product` dan `delete_product` untuk memungkinkan pengguna mengedit atau menghapus produk dari daftar. Setiap produk diberi tombol "Edit" dan "Delete" di card produk.
+   - Saya juga memastikan hanya pengguna yang login yang dapat mengakses fitur tersebut.
+
+- **Potongan Kode**:
+  ```python
+  from django.shortcuts import get_object_or_404, redirect
+  from .models import Product
+
+  def edit_product(request, product_id):
+      product = get_object_or_404(Product, id=product_id)
+      if request.method == "POST":
+          form = ProductForm(request.POST, request.FILES, instance=product)
+          if form.is_valid():
+              form.save()
+              return redirect('product_list')
+      else:
+          form = ProductForm(instance=product)
+      return render(request, 'edit_product.html', {'form': form, 'product': product})
+
+  def delete_product(request, product_id):
+      product = get_object_or_404(Product, id=product_id)
+      product.delete()
+      return redirect('product_list')
+  ```
+
+2. **Kustomisasi Halaman Login, Register, dan Tambah Produk:**
+   - Saya menggunakan framework CSS (Tailwind CSS) untuk mengatur tampilan halaman login, register, dan form tambah produk agar lebih menarik. Tailwind CSS memberikan kemudahan dalam mengatur layout dan styling dengan class utility-nya.
+   - Saya menambahkan beberapa styling untuk form validation agar pengguna tahu jika ada kesalahan pada input.
+
+3. **Kustomisasi Daftar Produk:**
+    - Saya menambahkan card untuk setiap produk menggunakan Flexbox untuk layout responsif. Saya juga memastikan jika tidak ada produk, maka muncul pesan dan gambar yang menunjukkan bahwa belum ada produk.
+    - Setiap card produk dilengkapi tombol untuk mengedit dan menghapus produk, yang dihubungkan ke fungsi edit dan delete di `views.py`.
+
+    - **Potongan Kode**:
+    ```html
+    <div class="flex flex-wrap">
+        {% for product in products %}
+            <div class="card">
+                <h2>{{ product.name }}</h2>
+                <button onclick="location.href='{% url 'edit_product' product.id %}'">Edit</button>
+                <button onclick="if(confirm('Apakah Anda yakin?')) { location.href='{% url 'delete_product' product.id %}' }">Hapus</button>
+            </div>
+        {% empty %}
+            <p>Tidak ada produk tersedia.</p>
+        {% endfor %}
+    </div>
+    ```
+
+4. **Membuat Navbar Responsif:**
+   - Saya membuat navigation bar yang responsif menggunakan Tailwind CSS. Pada tampilan mobile, navbar berubah menjadi hamburger menu yang bisa di-expand saat diklik. Pada tampilan desktop, navbar menampilkan semua link secara horizontal.
+   - Untuk tampilan mobile, saya menggunakan class Tailwind seperti `hidden`, `block`, dan `sm:block` untuk mengatur visibilitas elemen berdasarkan ukuran layar.
+
+5. **Testing dan Responsiveness:**
+   - Saya memastikan bahwa semua halaman responsif dengan menguji di berbagai perangkat dan ukuran layar. Saya menggunakan media queries dan class Tailwind untuk memastikan layout berubah sesuai dengan ukuran layar.
