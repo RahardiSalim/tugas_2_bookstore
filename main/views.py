@@ -40,8 +40,6 @@ def register(request):
     context = {'form': form}  
     return render(request, 'register.html', context)
 
-
-
 def login_user(request):
    if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -68,7 +66,6 @@ def logout_user(request):
     response.delete_cookie('last_login')
     return response
 
-@login_required(login_url='/login')
 def create_brand(request):
     if request.method == 'POST':
         form = BrandForm(request.POST)
@@ -82,7 +79,6 @@ def create_brand(request):
         html = render_to_string('brand_form_partial.html', {'form': form}, request=request)
         return JsonResponse({'html': html})
 
-@login_required(login_url='/login')
 def create_category(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
