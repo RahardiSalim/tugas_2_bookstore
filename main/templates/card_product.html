@@ -21,19 +21,13 @@
             <p class="font-semibold text-[#003135]">Brand</p>
             <p class="text-gray-700">{{ product.brand }}</p>
           </div>
-          <div>
-            <p class="font-semibold text-[#003135]">SKU</p>
-            <p class="text-gray-700">{{ product.sku }}</p>
-          </div>
         </div>
   
         <!-- Categories -->
         <div class="mb-4">
           <p class="font-semibold text-[#003135] mb-2">Categories</p>
           <div class="flex flex-wrap gap-2">
-            {% for category in product.category.all %}
-            <span class="bg-[#AFDDE5] text-[#003135] px-2 py-1 rounded-full text-sm">{{ category.name }}</span>
-            {% endfor %}
+            <span class="bg-[#AFDDE5] text-[#003135] px-2 py-1 rounded-full text-sm">{{ product.category }}</span>
           </div>
         </div>
   
@@ -47,11 +41,10 @@
               </span>
             </div>
             <div class="h-2 rounded bg-[#AFDDE5] overflow-hidden">
-              <div style="width: {{ product.stock_quantity|floatformat:0 }}%" class="bg-[#0FA4AF] h-full"></div>
+              <div style="width: {{ product.stock_quantity }}%" class="bg-[#0FA4AF] h-full"></div>
             </div>
           </div>
         </div>
-      </div>
   
       <!-- Action buttons -->
       <div class="absolute top-4 right-4 space-x-2 flex">

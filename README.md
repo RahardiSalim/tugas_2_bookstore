@@ -517,3 +517,153 @@ Flexbox lebih baik untuk layout sederhana satu dimensi, sementara Grid lebih bai
 
 5. **Testing dan Responsiveness:**
    - Saya memastikan bahwa semua halaman responsif dengan menguji di berbagai perangkat dan ukuran layar. Saya menggunakan media queries dan class Tailwind untuk memastikan layout berubah sesuai dengan ukuran layar.
+
+# TUGAS 6
+
+1. **Manfaat penggunaan JavaScript dalam pengembangan aplikasi web:**
+   JavaScript memiliki banyak manfaat dalam pengembangan aplikasi web, terutama karena sifatnya yang berjalan di sisi klien (client-side). Berikut adalah beberapa manfaat utamanya:
+   - **Interaktivitas Dinamis:** JavaScript memungkinkan pengembang untuk membuat halaman web yang interaktif dan dinamis. Hal ini mencakup perubahan elemen halaman secara langsung tanpa harus memuat ulang halaman (misalnya, menampilkan/menyembunyikan konten atau mengubah tampilan).
+   - **Validasi Formulir:** JavaScript dapat digunakan untuk melakukan validasi data di sisi klien sebelum dikirimkan ke server. Hal ini membantu mencegah data yang salah atau tidak sesuai.
+   - **Manajemen DOM (Document Object Model):** Dengan JavaScript, elemen-elemen dalam halaman web dapat dimanipulasi (ditambah, dihapus, atau diubah) dengan lebih mudah tanpa harus memuat ulang halaman.
+   - **Pemrosesan Asinkron (AJAX):** JavaScript memungkinkan pemrosesan data secara asinkron dengan server menggunakan AJAX, yang memungkinkan halaman web untuk mengambil atau mengirim data ke server tanpa harus melakukan reload halaman.
+   
+2. **Fungsi dari penggunaan `await` ketika kita menggunakan `fetch()` dan apa yang terjadi jika kita tidak menggunakannya:**
+   Fungsi `await` digunakan dalam konteks fungsi asinkron untuk menunggu hasil dari sebuah Promise sebelum melanjutkan eksekusi kode berikutnya. Ketika kita menggunakan `fetch()`, yang mengembalikan Promise, `await` memastikan bahwa JavaScript menunggu hingga permintaan HTTP selesai dan respons tersedia sebelum melanjutkan.
+   - **Jika tidak menggunakan `await`:** Jika kita tidak menggunakan `await`, fungsi `fetch()` akan mengembalikan Promise yang masih pending. Kode berikutnya akan dieksekusi segera, tanpa menunggu hasil dari permintaan `fetch()`, yang dapat menyebabkan akses ke data respons gagal karena data tersebut belum tersedia saat dibutuhkan.
+
+3. **Alasan penggunaan decorator `csrf_exempt` pada view yang digunakan untuk AJAX POST:**
+   Pada Django, permintaan POST harus dilindungi dari serangan CSRF (Cross-Site Request Forgery) dengan menggunakan CSRF token. Namun, ketika melakukan AJAX POST, terutama jika permintaan tidak melalui form tradisional, CSRF token mungkin tidak secara otomatis ditangani. Oleh karena itu, kita menggunakan decorator `csrf_exempt` untuk menonaktifkan validasi CSRF pada view tertentu, memastikan bahwa permintaan AJAX POST bisa diterima tanpa memeriksa token CSRF. Ini harus dilakukan dengan hati-hati, karena dapat membuka celah keamanan jika tidak dikelola dengan baik.
+
+4. **Alasan pembersihan data input dilakukan di backend, bukan hanya di frontend:**
+   Pembersihan data input di backend dilakukan untuk mencegah serangan seperti Cross-Site Scripting (XSS) dan memastikan bahwa data yang dimasukkan ke dalam sistem sudah valid dan aman. Meskipun pembersihan juga bisa dilakukan di frontend, hal tersebut tidak cukup aman karena pengguna dapat memodifikasi kode di sisi klien, misalnya melalui DevTools atau mengirimkan permintaan secara manual. Dengan melakukan pembersihan di backend, kita memastikan bahwa semua data yang diterima dan disimpan dalam sistem sudah divalidasi dengan benar tanpa memedulikan apakah validasi frontend dilakukan atau tidak.
+
+5. **Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step**
+
+    1. Mengubah tugas 5 menjadi menggunakan AJAX:
+
+    a. AJAX GET:
+    - Pertama, saya memodifikasi fungsi `show_main` di `views.py` untuk mengembalikan data yang diperlukan untuk rendering halaman utama, termasuk brands dan categories.
+    - Kemudian, saya memodifikasi fungsi `product_list_json` di `views.py` yang mengembalikan data produk dalam format JSON:
+
+    ```python
+    @login_required(login_url='/login')
+    def product_list_json(request):
+        products = Product.objects.filter(user=request.user).select_related('brand').prefetch_related('category')
+        data = []
+        for product in products:
+            product_data = {
+                'id': str(product.id),
+                'name': product.name,
+                'price': str(product.price),
+                'description': product.description if product.description else 'No description available',
+                'brand': product.brand.name if product.brand else 'No brand',
+                'sku': product.sku if product.sku else 'No SKU available',
+                'stock_quantity': product.stock_quantity,
+                'categories': [{'id': c.id, 'name': c.name} for c in product.category.all()],
+                'image_url': product.image.url if product.image else '',
+            }
+            data.append(product_data)
+        return JsonResponse(data, safe=False)
+    ```
+
+    - Di `main.html`, saya menambahkan fungsi JavaScript `getProducts()` untuk mengambil data produk menggunakan AJAX GET:
+
+    ```javascript
+    async function getProducts() {
+        return fetch("{% url 'bookstore:product_list_json' %}").then((res) => res.json())
+    }
+    ```
+
+    - Saya juga membuat fungsi `refreshProducts()` untuk memperbarui tampilan produk secara asinkron:
+
+    ```javascript
+    async function refreshProducts() {
+        document.getElementById("product_cards").innerHTML = "";
+        const products = await getProducts();
+        
+        let htmlString = "";
+        let classNameString = "";
+
+        if (products.length === 0) {
+            // ... (kode untuk menampilkan pesan jika tidak ada produk)
+        } else {
+            classNameString = "columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6 w-full";
+            products.forEach((product) => {
+                // ... (kode untuk membuat card produk)
+            });
+        }
+
+        document.getElementById("product_cards").className = classNameString;
+        document.getElementById("product_cards").innerHTML = htmlString;
+    }
+    ```
+
+    b. AJAX POST:
+    - Saya membuat modal dengan form untuk menambahkan produk baru di `main.html`:
+
+    ```html
+    <div id="crudModal" tabindex="-1" aria-hidden="true" class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-x-hidden overflow-y-auto transition-opacity duration-300 ease-out">
+        <!-- ... (kode modal) ... -->
+    </div>
+    ```
+
+    - Saya menambahkan fungsi `create_product_ajax` di `views.py` untuk menangani penambahan produk baru:
+
+    ```python
+    @csrf_exempt
+    @require_POST
+    def create_product_ajax(request):
+        name = strip_tags(request.POST.get("name"))
+        price = strip_tags(request.POST.get("price"))
+        description = strip_tags(request.POST.get("description"))
+        brand_id = strip_tags(request.POST.get("brand"))
+        sku = strip_tags(request.POST.get("sku"))
+        stock_quantity = strip_tags(request.POST.get("stock_quantity"))
+        user = request.user
+
+        # ... (kode untuk membuat produk baru)
+
+        return HttpResponse(b"CREATED", status=201)
+    ```
+
+    - Di `main.html`, saya menambahkan event listener untuk menangani submit form:
+
+    ```javascript
+    document.getElementById("submitProductEntry").addEventListener("click", async function(event) {
+        event.preventDefault();
+        const formData = new FormData(document.getElementById("productEntryForm"));
+
+        try {
+            const response = await fetch("{% url 'bookstore:create_product_ajax' %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrftoken 
+                }
+            });
+
+            if (response.ok) {
+                hideModal();
+                document.getElementById("productEntryForm").reset();
+                refreshProducts();
+            } else {
+                const errorData = await response.json();
+                console.error('Error submitting the form:', errorData);
+            }
+        } catch (error) {
+            console.error('Error during form submission:', error);
+        }
+    });
+    ```
+
+    2. Keamanan AJAX:
+    - Untuk AJAX GET, saya menggunakan dekorator `@login_required` pada view `product_list_json` untuk memastikan hanya pengguna yang sudah login yang dapat mengakses data.
+    - Untuk AJAX POST, saya menggunakan CSRF token dalam header request untuk mencegah CSRF attacks.
+
+    3. Penutup modal dan pembersihan form:
+    - Setelah berhasil menambahkan produk, modal ditutup dengan `hideModal()` dan form dibersihkan dengan `document.getElementById("productEntryForm").reset()`.
+
+    4. Refresh asinkron:
+    - Setelah berhasil menambahkan produk, `refreshProducts()` dipanggil untuk memperbarui daftar produk tanpa me-reload seluruh halaman.
+
+    Implementasi ini memungkinkan pengguna untuk melihat dan menambahkan produk secara dinamis tanpa perlu me-reload halaman, meningkatkan user experience dan performa aplikasi.

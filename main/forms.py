@@ -1,5 +1,6 @@
 from django import forms
 from .models import Brand, Category, Product, Customer, Order, OrderItem, Review
+from django.utils.html import strip_tags
 
 # Brand Form
 class BrandForm(forms.ModelForm):
@@ -14,6 +15,14 @@ class BrandForm(forms.ModelForm):
             'website': 'Website (Optional)',
         }
 
+        def clean_name(self):
+            name = self.cleaned_data['name']
+            return strip_tags(name)
+
+        def clean_description(self):
+            description = self.cleaned_data['description']
+            return strip_tags(description)
+
 # Category Form
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -22,6 +31,11 @@ class CategoryForm(forms.ModelForm):
         labels = {
             'name': 'Category Name',
         }
+
+
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        return strip_tags(name)
 
 # Product Form (formerly Book Form)
 class ProductForm(forms.ModelForm):
@@ -41,6 +55,24 @@ class ProductForm(forms.ModelForm):
             'stock_quantity': 'Stock Quantity',
             'image': 'Product Image',
         }
+
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        return strip_tags(name)
+
+    def clean_description(self):
+        description = self.cleaned_data['description']
+        return strip_tags(description)
+
+    def clean_sku(self):
+        sku = self.cleaned_data['sku']
+        return strip_tags(sku)
+
+    def clean_stock_quantity(self):
+        stock_quantity = self.cleaned_data['stock_quantity']
+        if stock_quantity < 0:
+            raise forms.ValidationError("Stock quantity cannot be negative.")
+        return stock_quantity
 
 # Customer Form
 class CustomerForm(forms.ModelForm):

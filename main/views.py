@@ -10,16 +10,22 @@ from django.contrib.auth.decorators import login_required
 import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.utils.html import strip_tags
 
 # View to display all products
 @login_required(login_url='/login')
 def show_main(request):
-    products = Product.objects.all()
+    brands = Brand.objects.all()  # Fetch all brands
+    categories = Category.objects.all()  # Fetch all categories
     context = {
-        'products': products,
         'last_login': request.COOKIES.get('last_login', 'Never'),
         'name': request.user.username,
+        'brands': brands,  # Pass brands to the template
+        'categories': categories,  # Pass categories to the template
     }
     return render(request, "main.html", context)
 
@@ -111,6 +117,45 @@ def create_product(request):
 
     return render(request, 'product_form.html', {'form': form, 'brands': brands, 'categories': categories})
 
+# AJAX POST: Create a product via AJAX
+@csrf_exempt
+@require_POST
+def create_product_ajax(request):
+    name = strip_tags(request.POST.get("name"))
+    price = strip_tags(request.POST.get("price"))
+    description = strip_tags(request.POST.get("description"))
+    brand_id = strip_tags(request.POST.get("brand"))
+    sku = strip_tags(request.POST.get("sku"))
+    stock_quantity = strip_tags(request.POST.get("stock_quantity"))
+    user = request.user
+
+    # Get the Brand instance
+    brand = Brand.objects.get(pk=brand_id) if brand_id else None
+
+    new_product = Product(
+        name=name,
+        price=price,
+        description=description,
+        brand=brand,
+        sku=sku,
+        stock_quantity=stock_quantity,
+        user=user
+    )
+    new_product.save()
+
+    # Handle categories (assuming it's a many-to-many field)
+    category_ids = request.POST.getlist("category")
+    for cat_id in category_ids:
+        category = Category.objects.get(pk=cat_id)
+        new_product.category.add(category)
+
+    # Handle image upload
+    if 'image' in request.FILES:
+        new_product.image = request.FILES['image']
+        new_product.save()
+
+    return HttpResponse(b"CREATED", status=201)
+
 @login_required(login_url='/login')
 def edit_product(request, id):
     # Get the product entry based on id
@@ -126,6 +171,13 @@ def edit_product(request, id):
 
     context = {'form': form, 'product': product}
     return render(request, "edit_product.html", context)
+
+
+
+@login_required(login_url='/login')
+def product_card(request, id):
+    product = get_object_or_404(Product, id=id)
+    return render(request, 'card_product.html', {'product': product})
 
 @login_required(login_url='/login')
 def delete_product(request, id):
@@ -188,52 +240,37 @@ def create_review(request):
         form = ReviewForm()
     return render(request, 'review_form.html', {'form': form})
 
-# View for listing all brands
-def brand_list(request):
-    brands = Brand.objects.all()
-    return render(request, 'brand_list.html', {'brands': brands})
 
-# View for listing all categories
-def category_list(request):
-    categories = Category.objects.all()
-    return render(request, 'category_list.html', {'categories': categories})
+# AJAX GET: Fetch products as JSON
+@login_required(login_url='/login')
+def product_list_json(request):
+    products = Product.objects.filter(user=request.user).select_related('brand').prefetch_related('category')
+    data = []
+    for product in products:
+        product_data = {
+            'id': str(product.id),
+            'name': product.name,
+            'price': str(product.price),
+            'description': product.description if product.description else 'No description available',
+            'brand': product.brand.name if product.brand else 'No brand',
+            'sku': product.sku if product.sku else 'No SKU available',
+            'stock_quantity': product.stock_quantity,
+            'categories': [{'id': c.id, 'name': c.name} for c in product.category.all()],
+            'image_url': product.image.url if product.image else '',
+        }
+        data.append(product_data)
+    return JsonResponse(data, safe=False)
 
-# View for listing all products
-def product_list(request):
-    products = Product.objects.all() 
-    return render(request, 'product_list.html', {'products': products})
 
-# View for listing all customers
-def customer_list(request):
-    customers = Customer.objects.all()
-    return render(request, 'customer_list.html', {'customers': customers})
-
-# View for listing all orders
-def order_list(request):
-    orders = Order.objects.all()
-    return render(request, 'order_list.html', {'orders': orders})
-
-# View for listing all order items
-def order_item_list(request):
-    order_items = OrderItem.objects.all()
-    return render(request, 'order_item_list.html', {'order_items': order_items})
-
-# View for listing all reviews
-def review_list(request):
-    reviews = Review.objects.all()
-    return render(request, 'review_list.html', {'reviews': reviews})
-
-# # JSON view for all products
+# @login_required(login_url='/login')
 # def product_list_json(request):
-#     products = Product.objects.all()
-#     data = list(products.values())  # Convert QuerySet to list of dictionaries
-#     return JsonResponse(data, safe=False)
+#     data = Product.objects.filter(user=request.user)
+#     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
-# # XML view for all products
-# def product_list_xml(request):
-#     products = Product.objects.all()
-#     data = serializers.serialize("xml", products)
-#     return HttpResponse(data, content_type="application/xml")
+@login_required(login_url='/login')
+def product_list_xml(request):
+    data = Product.objects.filter(user=request.user)
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
 # # JSON view for a specific product by ID
 # def product_detail_json(request, id):

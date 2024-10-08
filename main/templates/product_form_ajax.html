@@ -1,0 +1,60 @@
+<!-- product_form_partial.html -->
+{% load custom_filters %}
+<form id="product-form" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="space-y-6">
+        <!-- Product Name -->
+        <div class="flex flex-col">
+            <label for="{{ form.name.id_for_label }}" class="form-label">Product Name</label>
+            {{ form.name|add_class:"form-input" }}
+        </div>
+
+        <!-- Price -->
+        <div class="flex flex-col">
+            <label for="{{ form.price.id_for_label }}" class="form-label">Price</label>
+            {{ form.price|add_class:"form-input" }}
+        </div>
+
+        <!-- Brand -->
+        <div class="flex flex-col">
+            <label for="{{ form.brand.id_for_label }}" class="form-label">Brand</label>
+            {{ form.brand|add_class:"form-input" }}
+            <button type="button" class="btn-secondary mt-2" data-bs-toggle="modal" data-bs-target="#addBrandModal">+ Add new Brand</button>
+        </div>
+
+        <!-- Category -->
+        <div class="flex flex-col">
+            <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+            {{ form.category|add_class:"form-input select2-multiple" }}
+            <button type="button" class="btn-secondary mt-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">+ Add new Category</button>
+        </div>
+
+        <!-- Description -->
+        <div class="flex flex-col">
+            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+            {{ form.description|add_class:"form-input" }}
+        </div>
+
+        <!-- SKU -->
+        <div class="flex flex-col">
+            <label for="{{ form.sku.id_for_label }}" class="form-label">SKU</label>
+            {{ form.sku|add_class:"form-input" }}
+        </div>
+
+        <!-- Stock Quantity -->
+        <div class="flex flex-col">
+            <label for="{{ form.stock_quantity.id_for_label }}" class="form-label">Stock Quantity</label>
+            {{ form.stock_quantity|add_class:"form-input" }}
+        </div>
+
+        <!-- Product Image -->
+        <div class="flex flex-col">
+            <label for="{{ form.image.id_for_label }}" class="form-label">Product Image</label>
+            {{ form.image|add_class:"form-input" }}
+        </div>
+
+        <div class="flex justify-center mt-6">
+            <button type="submit" class="btn-primary w-full sm:w-auto">Save Product</button>
+        </div>
+    </div>
+</form>
