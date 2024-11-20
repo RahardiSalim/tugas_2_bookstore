@@ -45,6 +45,12 @@ urlpatterns = [
     # Uncomment JSON/XML views if necessary
     path('products/json/', views.product_list_json, name='product_list_json'),        # JSON for all products
     path('products/xml/', views.product_list_xml, name='product_list_xml'),           # XML for all products
-    # path('products/json/<uuid:id>/', views.product_detail_json, name='product_detail_json'),  # JSON for specific product
-    # path('products/xml/<uuid:id>/', views.product_detail_xml, name='product_detail_xml'),    # XML for specific product
+    path('products/json/<uuid:id>/', views.product_detail_json, name='product_detail_json'),  # JSON for specific product
+    path('products/xml/<uuid:id>/', views.product_detail_xml, name='product_detail_xml'),    # XML for specific product
+
+    path('create-product-flutter/', views.create_product_flutter, name='create_product_flutter'),
+    path('products/json/', views.product_list_json, name='product_list_json'),
+    path('products/json/<uuid:id>/', views.product_detail_json, name='product_detail_json'),
+    path('brands/json/', views.brand_list_json, name='brand_list_json'),
+    path('categories/json/', views.category_list_json, name='category_list_json'),
 ]

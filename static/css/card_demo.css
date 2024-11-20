@@ -1,0 +1,21 @@
+.card-container{
+    display: flex;
+    gap: 20px;
+    padding:20px;
+    justify-content: center;
+}
+
+.card{
+    width:300px;
+    border:1px solid #ddd;
+}
+.card-title{
+    font: size 1.5em;
+    color: #333;
+}
+.card-description{
+    color: #667;
+}
+.card-image{
+    width:50%;
+}

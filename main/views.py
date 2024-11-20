@@ -15,6 +15,9 @@ from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.http import JsonResponse
 
 # View to display all products
 @login_required(login_url='/login')
@@ -240,54 +243,116 @@ def create_review(request):
         form = ReviewForm()
     return render(request, 'review_form.html', {'form': form})
 
-
-# AJAX GET: Fetch products as JSON
 @login_required(login_url='/login')
 def product_list_json(request):
+    """
+    Returns a JSON response with all products for the logged-in user.
+    """
     products = Product.objects.filter(user=request.user).select_related('brand').prefetch_related('category')
-    data = []
-    for product in products:
-        product_data = {
-            'id': str(product.id),
-            'name': product.name,
-            'price': str(product.price),
-            'description': product.description if product.description else 'No description available',
-            'brand': product.brand.name if product.brand else 'No brand',
-            'sku': product.sku if product.sku else 'No SKU available',
-            'stock_quantity': product.stock_quantity,
-            'categories': [{'id': c.id, 'name': c.name} for c in product.category.all()],
-            'image_url': product.image.url if product.image else '',
+    data = [
+        {
+            "id": str(product.id),
+            "name": product.name,
+            "price": float(product.price),
+            "description": product.description if product.description else "No description available",
+            "brand": {
+                "id": str(product.brand.id),
+                "name": product.brand.name
+            },
+            "categories": [{"id": str(cat.id), "name": cat.name} for cat in product.category.all()],
+            "sku": product.sku,
+            "stock_quantity": product.stock_quantity,
+            "image_url": product.image.url if product.image else ""
         }
-        data.append(product_data)
+        for product in products
+    ]
     return JsonResponse(data, safe=False)
 
+def brand_list_json(request):
+    """
+    Returns a JSON response with all brands.
+    """
+    brands = Brand.objects.all()
+    data = [{"id": str(brand.id), "name": brand.name, "description": brand.description, "website": brand.website} for brand in brands]
+    return JsonResponse(data, safe=False)
 
-# @login_required(login_url='/login')
-# def product_list_json(request):
-#     data = Product.objects.filter(user=request.user)
-#     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+def category_list_json(request):
+    """
+    Returns a JSON response with all categories.
+    """
+    categories = Category.objects.all()
+    data = [{"id": str(category.id), "name": category.name} for category in categories]
+    return JsonResponse(data, safe=False)
+
 
 @login_required(login_url='/login')
 def product_list_xml(request):
     data = Product.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
-# # JSON view for a specific product by ID
-# def product_detail_json(request, id):
-#     product = get_object_or_404(Product, id=id)
-#     data = {
-#         "name": product.name,
-#         "price": product.price,
-#         "description": product.description,
-#         "brand": str(product.brand),
-#         "category": [str(cat) for cat in product.category.all()],
-#         "sku": product.sku,
-#         "stock_quantity": product.stock_quantity,
-#     }
-#     return JsonResponse(data)
+# JSON view for a specific product by ID
+def product_detail_json(request, id):
+    product = get_object_or_404(Product, id=id)
+    data = {
+        "name": product.name,
+        "price": product.price,
+        "description": product.description,
+        "brand": str(product.brand),
+        "category": [str(cat) for cat in product.category.all()],
+        "sku": product.sku,
+        "stock_quantity": product.stock_quantity,
+    }
+    return JsonResponse(data)
 
-# # XML view for a specific product by ID
-# def product_detail_xml(request, id):
-#     product = get_object_or_404(Product, id=id)
-#     data = serializers.serialize("xml", [product])
-#     return HttpResponse(data, content_type="application/xml")
+# XML view for a specific product by ID
+def product_detail_xml(request, id):
+    product = get_object_or_404(Product, id=id)
+    data = serializers.serialize("xml", [product])
+    return HttpResponse(data, content_type="application/xml")
+
+@csrf_exempt
+def create_product_flutter(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            
+            # Get or create brand
+            brand, _ = Brand.objects.get_or_create(
+                id=data["brand"]["id"],
+                defaults={
+                    "name": data["brand"]["name"],
+                    "description": data.get("brand", {}).get("description"),
+                    "website": data.get("brand", {}).get("website")
+                }
+            )
+
+            # Get or create categories
+            categories = []
+            for cat_data in data["categories"]:
+                category, _ = Category.objects.get_or_create(
+                    id=cat_data["id"],
+                    defaults={"name": cat_data["name"]}
+                )
+                categories.append(category)
+
+            # Create the product
+            new_product = Product.objects.create(
+                id=data["id"],
+                user_id=request.user.id if request.user.is_authenticated else None,
+                name=data["name"],
+                price=float(data["price"]),
+                description=data.get("description"),
+                brand=brand,
+                sku=data["sku"],
+                stock_quantity=int(data["stock_quantity"]),
+            )
+
+            # Add categories to the product
+            new_product.category.set(categories)
+            new_product.save()
+
+            return JsonResponse({"status": "success"}, status=200)
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+    else:
+        return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
